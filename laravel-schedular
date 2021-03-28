@@ -1,6 +1,6 @@
 follow this link
 https://tutsforweb.com/how-to-set-up-task-scheduling-cron-job-in-laravel/
 
-and use this command on hosting
+add cron job in cpanel with this command
 
-schedule:run 1>> /dev/null 2>&1
+php /home/alirelje/dreaming.houseofprogrammers.com schedule:run 1>> /dev/null 2>&1	
