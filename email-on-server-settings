@@ -1,0 +1,62 @@
+MAIL_DRIVER=smtp
+MAIL_HOST=premium148.web-hosting.com
+MAIL_PORT=465
+MAIL_USERNAME=support@audio.houseofprogrammers.com
+MAIL_PASSWORD=yourpassword
+MAIL_ENCRYPTION=tls
+MAIL_FROM_NAME=support@audio.houseofprogrammers.com
+
+
+
+<?php
+declare(strict_types=1);
+
+namespace services\email_services;
+
+use PHPMailer\PHPMailer\PHPMailer;
+
+class EmailSender
+{
+    private $phpMail;
+    private $smtpAccount;
+
+    public function __construct(PhpMail $phpMail)
+    {
+        $this->phpMail = $phpMail;
+        $this->smtpAccount = config('smtp.gmail');
+    }
+
+    public function send(EmailMessage $emailMessage)
+    {
+
+        $mail = new PHPMailer(true);
+        try {
+            $mail->isSMTP();
+            $mail->SMTPDebug = 0;
+            $mail->Host = env('MAIL_HOST');
+            $mail->Port =  env('MAIL_PORT');
+            $mail->SMTPSecure = 'ssl';
+            $mail->SMTPAutoTLS = false;
+            $mail->SMTPAuth = true;
+            $mail->Timeout = 2;
+            $mail->Username = env('MAIL_USERNAME');
+            $mail->Password = env('MAIL_PASSWORD');
+            $mail->setFrom("support@audio.houseofprogrammers.com");
+            if(!empty(($emailMessage->getAttachment()))){
+                $mail->addAttachment($emailMessage->getAttachment());
+            }
+            foreach ($emailMessage->getAttachmentList() as $attachment)
+            {
+                $mail->addAttachment($attachment);
+            }
+            $mail->addAddress($emailMessage->getEmailTo()->getEmail());
+            $mail->Subject = ($emailMessage->getSubject()->getEmailSubject());
+            $mail->msgHTML($emailMessage->getEmailBody()->getEmailBody());
+            $mail->send();
+            return true;
+        } catch (Exception $e) {
+            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+            return false;
+        }
+    }
+}
